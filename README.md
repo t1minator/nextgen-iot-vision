@@ -43,14 +43,41 @@ A FastAPI-based computer vision service for analyzing videos and detecting objec
 
 ## Running the Service
 
-### Start the server:
+### Option 1: Local Python
 ```bash
 python main.py
 ```
 
+### Option 2: Docker (Recommended for Production)
+
+#### Using Docker Compose (Easiest):
+```bash
+# Build and start the service
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Stop the service
+docker compose down
+```
+
+#### Using Docker directly:
+```bash
+# Build the image
+docker build -t iot-vision .
+
+# Run the container
+docker run -d \
+  --name iot-vision-service \
+  -p 8000:8000 \
+  -v $(pwd)/logs:/app/logs \
+  iot-vision
+```
+
 The service will start on `http://localhost:8000`
 
-### Alternative startup:
+### Alternative local startup:
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
@@ -178,6 +205,9 @@ Log levels include processing steps, detection results, and error handling.
    lsof -i :8000
    # Kill the process
    kill <PID>
+
+   # For Docker
+   docker compose down
    ```
 
 2. **Video file not supported**:
@@ -188,12 +218,32 @@ Log levels include processing steps, detection results, and error handling.
 3. **Model download fails**:
    - Check internet connection
    - Model downloads automatically on first use
-   - Manual download: The model will be cached locally after first download
+   - For Docker: Model downloads inside container on first request
 
 4. **Low detection accuracy**:
    - Adjust confidence threshold
    - Use larger YOLO model (yolov8s, yolov8m, etc.)
    - Ensure good video quality
+
+5. **Docker Issues**:
+   ```bash
+   # Check container status
+   docker compose ps
+
+   # View container logs
+   docker compose logs iot-vision
+
+   # Restart service
+   docker compose restart
+
+   # Rebuild after code changes
+   docker compose up --build
+
+   # Clean rebuild
+   docker compose down
+   docker compose build --no-cache
+   docker compose up -d
+   ```
 
 ## Development
 
